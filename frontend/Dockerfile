@@ -35,7 +35,6 @@ RUN apt update -y \
 && apt install ruby-full -y \
 && apt install ruby-dev -y \
 && apt install slurm-client -y \
-&& apt install slurmd -y \
 && apt install ssh -y \
 && apt install tcl -y \
 && apt install tcl-dev -y \
@@ -47,18 +46,28 @@ RUN apt update -y \
 && update-alternatives --install /usr/bin/python python $( which python3 ) 10 \
 && pip3 install Cython nose requests jinja2 pyyaml f90nml numpy netCDF4
 
+
 ARG DEBIAN_FRONTEND=noninteractive
-#RUN apt install slurmd slurm-client libpmi2-0-dev -y
+#RUN apt install slurm-client -y && apt install libpmi2-0-dev -y
+#RUN apt install curl dirmngr apt-transport-https lsb-release ca-certificates -y
+#RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 #RUN apt install sudo -y && apt install python3.9 python3-pip -y && useradd -m admin -s /usr/bin/bash -d /home/admin && echo "admin:admin" | chpasswd && adduser admin sudo && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN apt install sudo -y && useradd -m admin -s /usr/bin/bash -d /home/admin && echo "admin:admin" | chpasswd && adduser admin sudo && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+#RUN apt update -y && apt install nodejs -y && npm install -g configurable-http-proxy && pip3 install jupyterlab==2.1.2 
 
 #COPY slurm.conf /etc/slurm-llnl/
 #COPY cgroup.conf /etc/slurm-llnl/
 #COPY docker-entrypoint.sh /etc/slurm-llnl/
 #
-#EXPOSE 6817 6818 6819  
+#WORKDIR /home/admin
+#
+#EXPOSE 8888
+#
+#ENV USER admin
+#ENV SHELL bash
 
-#RUN apt update -y && apt install libopenmpi-dev -y && pip3 install mpi4py
+#RUN apt install libopenmpi-dev -y && pip3 install mpi4py && pip3 install jupyterlab_slurm
 
 # Add apt repository public key for Intel OneAPI
 ARG url=https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -81,6 +90,11 @@ RUN apt-get update -y && \
         intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && \
         echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bash_profile
         
+#RUN apt update -y               && \
+#    apt install -y                 \
+#      intel-oneapi-runtime-libs && \
+#    echo "source /opt/intel/oneapi/setvars.sh" >> /home/admin/.bash_profile
+
 SHELL ["/bin/bash", "--login", "-c"]
 
 # Install Rocoto
@@ -97,6 +111,7 @@ RUN set -ex \
     && echo 'prepend-path PATH /opt/rocoto/develop/bin' >> /usr/share/lmod/lmod/modulefiles/rocoto/develop \
     && echo 'prepend-path MANPATH /opt/rocoto/develop/man' >> /usr/share/lmod/lmod/modulefiles/rocoto/develop
 
+
 # Install hpc-stack
 RUN set -ex \
     && git clone -b rrfs_ci https://github.com/NOAA-GSL/hpc-stack.git /tmp/hpc-stack \
@@ -111,10 +126,16 @@ RUN set -ex \
     && popd \
     && rm -rf /tmp/hpc-stack
 
+
 COPY slurm.conf /etc/slurm-llnl/
 COPY cgroup.conf /etc/slurm-llnl/
 COPY docker-entrypoint.sh /etc/slurm-llnl/
 
-EXPOSE 6817 6818 6819  
+WORKDIR /home/admin
+
+EXPOSE 8888
+
+ENV USER admin
+ENV SHELL bash
 
 ENTRYPOINT ["/etc/slurm-llnl/docker-entrypoint.sh"]

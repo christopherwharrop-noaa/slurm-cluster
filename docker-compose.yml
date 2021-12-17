@@ -1,7 +1,7 @@
 services:
   slurmfrontend:
         build:
-          context: ./frontend
+          context: ./front-end
           dockerfile: Dockerfile
         image: slurm-frontend:latest
         hostname: slurmfrontend
@@ -21,7 +21,7 @@ services:
         volumes:
                 - shared-vol:/home/admin
         environment:
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=1
         ports:
                 - 6817:6817
                 - 6818:6818
@@ -35,10 +35,9 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode1
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
   slurmnode2:
@@ -50,10 +49,9 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode2
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
   slurmnode3:
@@ -65,10 +63,9 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode3
-                - SLURM_CPUS_ON_NODE=1
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
 volumes:
