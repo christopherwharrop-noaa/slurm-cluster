@@ -48,68 +48,7 @@ RUN apt update -y \
 && pip3 install Cython nose requests jinja2 pyyaml f90nml numpy netCDF4
 
 ARG DEBIAN_FRONTEND=noninteractive
-#RUN apt install slurmd slurm-client libpmi2-0-dev -y
-#RUN apt install sudo -y && apt install python3.9 python3-pip -y && useradd -m admin -s /usr/bin/bash -d /home/admin && echo "admin:admin" | chpasswd && adduser admin sudo && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN apt install sudo -y && useradd -m admin -s /usr/bin/bash -d /home/admin && echo "admin:admin" | chpasswd && adduser admin sudo && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-#COPY slurm.conf /etc/slurm-llnl/
-#COPY cgroup.conf /etc/slurm-llnl/
-#COPY docker-entrypoint.sh /etc/slurm-llnl/
-#
-#EXPOSE 6817 6818 6819  
-
-#RUN apt update -y && apt install libopenmpi-dev -y && pip3 install mpi4py
-
-# Add apt repository public key for Intel OneAPI
-ARG url=https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-ADD $url ./
-RUN file=$(basename "$url") && \
-    apt-key add "$file" && \
-    rm "$file"
-
-# Configure the apt repository
-ARG repo=https://apt.repos.intel.com/oneapi
-RUN echo "deb $repo all main" > /etc/apt/sources.list.d/oneAPI.list
-
-# Install Intel oneapi packages and set up modules
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends -o=Dpkg::Use-Pty=0 \
-        intel-oneapi-dev-utilities \
-        intel-oneapi-mpi-devel \
-        intel-oneapi-openmp \
-        intel-oneapi-compiler-fortran \
-        intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && \
-        echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bash_profile
-        
-SHELL ["/bin/bash", "--login", "-c"]
-
-# Install Rocoto
-RUN set -ex \
-    && mkdir /opt/rocoto \
-    && git clone -b develop https://github.com/christopherwharrop/rocoto.git /opt/rocoto/develop \
-    && pushd /opt/rocoto/develop \
-    && ./INSTALL
-
-# Make a module for Rocoto
-RUN set -ex \
-    && mkdir /usr/share/lmod/lmod/modulefiles/rocoto \
-    && echo '#%Module1.0' > /usr/share/lmod/lmod/modulefiles/rocoto/develop \
-    && echo 'prepend-path PATH /opt/rocoto/develop/bin' >> /usr/share/lmod/lmod/modulefiles/rocoto/develop \
-    && echo 'prepend-path MANPATH /opt/rocoto/develop/man' >> /usr/share/lmod/lmod/modulefiles/rocoto/develop
-
-# Install hpc-stack
-RUN set -ex \
-    && git clone -b rrfs_ci https://github.com/NOAA-GSL/hpc-stack.git /tmp/hpc-stack \
-    && pushd /tmp/hpc-stack \
-    && prefix=/opt/hpc-stack \
-    && python_ver=$( python3 --version | cut -d " " -f2 | cut -d. -f1-2 ) \
-    && export HPC_COMPILER="intel/2021" \
-    && export HPC_MPI="impi/2021" \
-    && export HPC_PYTHON="python/${python_ver}" \
-    && yes | ./setup_modules.sh -c config/config_custom.sh -p $prefix \
-    && ./build_stack.sh -p $prefix -c config/config_custom.sh -y stack/stack_rrfs_ci.yaml -m \
-    && popd \
-    && rm -rf /tmp/hpc-stack
 
 COPY slurm.conf /etc/slurm-llnl/
 COPY cgroup.conf /etc/slurm-llnl/

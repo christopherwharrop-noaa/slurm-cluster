@@ -1,7 +1,8 @@
 #!/bin/bash
 
-sudo service munge start
+export SLURM_CPUS_ON_NODE=$(cat /proc/cpuinfo | grep processor | wc -l)
+sudo sed -i "s/REPLACE_IT/CPUs=${SLURM_CPUS_ON_NODE}/g" /etc/slurm-llnl/slurm.conf
 
-jupyter lab --no-browser --allow-root --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password=''
+sudo service munge start
 
 tail -f /dev/null

@@ -9,7 +9,6 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         ports:
                 - 8888:8888
   slurmmaster:
@@ -23,7 +22,7 @@ services:
         volumes:
                 - shared-vol:/home/admin
         environment:
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=8
         ports:
                 - 6817:6817
                 - 6818:6818
@@ -38,10 +37,9 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode1
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
   slurmnode2:
@@ -54,10 +52,9 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode2
-                - SLURM_CPUS_ON_NODE=2
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
   slurmnode3:
@@ -70,17 +67,10 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         environment:
                 - SLURM_NODENAME=slurmnode3
-                - SLURM_CPUS_ON_NODE=1
+                - SLURM_CPUS_ON_NODE=8
         links:
                 - slurmmaster
 volumes:
         shared-vol:
-        ufs-data:
-          driver: local
-          driver_opts:
-            o: bind
-            type: none
-            device: /home/ubuntu/ufs-data
