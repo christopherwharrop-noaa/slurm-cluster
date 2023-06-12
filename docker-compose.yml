@@ -1,27 +1,28 @@
 services:
   slurmfrontend:
         build:
-          context: ./front-end
+          context: ./frontend
           dockerfile: Dockerfile
-        image: slurm-frontend:latest
+        image: noaagsl/slurm-frontend:latest
+        shm_size: '4g'
         hostname: slurmfrontend
         user: admin
         volumes:
                 - shared-vol:/home/admin
-                - ufs-data:/opt/ufs-data
         ports:
                 - 8888:8888
   slurmmaster:
         build:
           context: ./master
           dockerfile: Dockerfile
-        image: slurm-master:latest
+        image: noaagsl/slurm-master:latest
+        shm_size: '4g'
         hostname: slurmmaster
         user: admin
         volumes:
                 - shared-vol:/home/admin
         environment:
-                - SLURM_CPUS_ON_NODE=1
+                - SLURM_CPUS_ON_NODE=8
         ports:
                 - 6817:6817
                 - 6818:6818
@@ -30,7 +31,8 @@ services:
         build:
           context: ./node
           dockerfile: Dockerfile
-        image: slurm-node:latest
+        image: noaagsl/slurm-node:latest
+        shm_size: '4g'
         hostname: slurmnode1
         user: admin
         volumes:
@@ -44,7 +46,8 @@ services:
         build:
           context: ./node
           dockerfile: Dockerfile
-        image: slurm-node:latest
+        image: noaagsl/slurm-node:latest
+        shm_size: '4g'
         hostname: slurmnode2
         user: admin
         volumes:
@@ -58,7 +61,8 @@ services:
         build:
           context: ./node
           dockerfile: Dockerfile
-        image: slurm-node:latest
+        image: noaagsl/slurm-node:latest
+        shm_size: '4g'
         hostname: slurmnode3
         user: admin
         volumes:
@@ -70,9 +74,3 @@ services:
                 - slurmmaster
 volumes:
         shared-vol:
-        ufs-data:
-          driver: local
-          driver_opts:
-            o: bind
-            type: none
-            device: /Users/christopher.w.harrop/work/ufs-data
