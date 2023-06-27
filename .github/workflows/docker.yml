@@ -37,3 +37,7 @@ jobs:
       -
         name: Run a Slurm job
         run: docker exec slurm-frontend srun hostname
+
+      -
+        name: Shut down Slurm cluster containers
+        run: docker-compose -f docker-compose.yml down
