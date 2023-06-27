@@ -45,5 +45,5 @@ docker exec slurm-frontend sinfo
 ```
 To run a Slurm job:
 ```
-docker exec slurm-frontend sinfo
+docker exec slurm-frontend srun hostname
 ```
