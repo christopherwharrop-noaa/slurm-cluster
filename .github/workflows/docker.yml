@@ -1,0 +1,28 @@
+name: Docker Slurm
+
+on:
+  push:
+    branches: [ devel ]
+  pull_request:
+    branches: [ devel ]
+  workflow_dispatch:
+
+jobs:
+
+  docker_build:
+    name: Docker Build
+    runs-on: ubuntu-20.04
+
+    steps:
+      -
+        name: Checkout Repository
+        uses: actions/checkout@v3
+
+      -
+        name: Build and start containers
+        run: docker-compose -f docker-compose.yml up --build -d
+
+      -
+        name: Check cluster logs
+        run: docker-compose -f docker-compose.yml logs -f
+
