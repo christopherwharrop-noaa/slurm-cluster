@@ -36,4 +36,4 @@ jobs:
 
       -
         name: Run a Slurm job
-	run: docker exec slurm-frontend srun hostname
+        run: docker exec slurm-frontend srun hostname
